@@ -6,6 +6,8 @@ from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly, IsParticipantOfConversation
 from django.shortcuts import get_object_or_404
+from .pagination import MessagePagination
+from .filters import MessageFilter
 
 
 
@@ -46,7 +48,9 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated, IsSenderOrReadOnly, IsParticipantOfConversation]
 
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = MessageFilter
+    pagination_class = MessagePagination
     ordering_fields = ['sent_at']
     ordering = ['-sent_at']  # default ordering
 
