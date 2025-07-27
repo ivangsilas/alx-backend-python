@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
 from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly, IsParticipantOfConversation
+from django.shortcuts import get_object_or_404
 
 
 
@@ -49,16 +50,13 @@ class MessageViewSet(viewsets.ModelViewSet):
     ordering_fields = ['sent_at']
     ordering = ['-sent_at']  # default ordering
 
-    def get_queryset(self):
-        conversation_id = self.kwargs.get('conversation_pk')
-        return Message.objects.filter(conversation__conversation_id=conversation_id)
-
     def create(self, request, *args, **kwargs):
         conversation_id = self.kwargs.get('conversation_pk')
-        try:
-            conversation = Conversation.objects.get(conversation_id=conversation_id)
-        except Conversation.DoesNotExist:
-            return Response({'detail': 'Conversation not found.'}, status=status.HTTP_404_NOT_FOUND)
+        conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
+
+        # Ensure user is a participant
+        if request.user not in conversation.participants.all():
+            return Response({'detail': 'You are not a participant in this conversation.'}, status=status.HTTP_403_FORBIDDEN)
 
         message = Message.objects.create(
             sender=request.user,

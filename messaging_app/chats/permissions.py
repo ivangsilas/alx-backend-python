@@ -35,3 +35,13 @@ class IsParticipantOfConversation(permissions.BasePermission):
         elif hasattr(obj, 'conversation'):
             return request.user in obj.conversation.participants.all()
         return False
+
+    def has_object_permission(self, request, view, obj):
+        # Only allow participants to view or modify
+        if request.method in ["GET", "POST"]:
+            return request.user in obj.participants.all()
+
+        if request.method in ["PUT", "PATCH", "DELETE"]:
+            return request.user in obj.participants.all()
+
+        return False
