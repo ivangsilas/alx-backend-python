@@ -1,4 +1,4 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets, status, filters
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
@@ -13,6 +13,11 @@ class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
     permission_classes = [IsAuthenticated]
+
+    # Add filtering and search capabilities
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['participants__email', 'participants__first_name', 'participants__last_name']
+    ordering_fields = ['created_at']
 
     def create(self, request, *args, **kwargs):
         user_ids = request.data.get('user_ids', [])
@@ -38,9 +43,13 @@ class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
     permission_classes = [IsAuthenticated]
 
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['sent_at']
+    ordering = ['-sent_at']  # default ordering
+
     def get_queryset(self):
         conversation_id = self.kwargs.get('conversation_pk')
-        return Message.objects.filter(conversation__conversation_id=conversation_id).order_by('-sent_at')
+        return Message.objects.filter(conversation__conversation_id=conversation_id)
 
     def create(self, request, *args, **kwargs):
         conversation_id = self.kwargs.get('conversation_pk')
