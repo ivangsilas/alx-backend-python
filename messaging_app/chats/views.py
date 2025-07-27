@@ -50,6 +50,11 @@ class MessageViewSet(viewsets.ModelViewSet):
     ordering_fields = ['sent_at']
     ordering = ['-sent_at']  # default ordering
 
+    def get_queryset(self):
+        conversation_id = self.kwargs.get('conversation_pk')
+        return Message.objects.filter(conversation__conversation_id=conversation_id)
+
+
     def create(self, request, *args, **kwargs):
         conversation_id = self.kwargs.get('conversation_pk')
         conversation = get_object_or_404(Conversation, conversation_id=conversation_id)
