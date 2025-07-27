@@ -41,7 +41,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'chats',
-    django_filters,
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -139,13 +139,15 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
     ],
+     # This uses PageNumberPagination via MessagePagination
     'DEFAULT_PAGINATION_CLASS': 'chats.pagination.MessagePagination',
-    'PAGENUMBERPAGINATION': 20,
+    'PAGE_SIZE': 20, #  "PageNumberPaginatio
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'rest_framework.filters.OrderingFilter',
     ],
+}
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),

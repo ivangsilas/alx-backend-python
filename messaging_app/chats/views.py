@@ -8,7 +8,7 @@ from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly, IsParticip
 from django.shortcuts import get_object_or_404
 from .pagination import MessagePagination
 from .filters import MessageFilter
-
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 # ----------------------------
