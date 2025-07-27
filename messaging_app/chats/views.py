@@ -4,7 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Conversation, Message, User
 from .serializers import ConversationSerializer, MessageSerializer
-from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly
+from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly, IsParticipantOfConversation
+
 
 
 # ----------------------------
@@ -13,7 +14,7 @@ from .permissions import IsParticipantOrReadOnly, IsSenderOrReadOnly
 class ConversationViewSet(viewsets.ModelViewSet):
     queryset = Conversation.objects.all()
     serializer_class = ConversationSerializer
-    permission_classes = [IsAuthenticated, IsParticipantOrReadOnly]
+    permission_classes = [IsAuthenticated, IsParticipantOrReadOnly , IsParticipantOfConversation]
 
     # Add filtering and search capabilities
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
@@ -42,7 +43,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
 # ----------------------------
 class MessageViewSet(viewsets.ModelViewSet):
     serializer_class = MessageSerializer
-    permission_classes = [IsAuthenticated, IsSenderOrReadOnly]
+    permission_classes = [IsAuthenticated, IsSenderOrReadOnly, IsParticipantOfConversation]
 
     filter_backends = [filters.OrderingFilter]
     ordering_fields = ['sent_at']
