@@ -20,10 +20,16 @@ class Message(models.Model):
         related_name='edited_messages'
     )
 
+    parent_message = models.ForeignKey(
+        'self',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='replies'
+    )
+
     def __str__(self):
         return f"From {self.sender} to {self.receiver} - {self.timestamp}"
-
-
 
 class MessageHistory(models.Model):
     message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
