@@ -1,8 +1,12 @@
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.db.models import Prefetch
 from .models import Message
+from .serializers import UnreadMessageSerializer
+from rest_framework.response import Response
 
 
 
@@ -36,8 +40,9 @@ def user_sent_messages_view(request):
 
     return render(request, 'messaging/user_sent_messages.html', {'messages': messages})
 
-
- @login_required
-def unread_messages_view(request):
-    unread_messages = Message.unread.for_user(request.user)
-    return render(request, 'messaging/unread_messages.html', {'messages': unread_messages})   
+class UnreadMessagesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request):
+            unread_messages = Message.unread.for_user(request.user)
+            serializer = UnreadMessageSerializer(unread_messages, many=True)
+            return Response(serializer.data)  
