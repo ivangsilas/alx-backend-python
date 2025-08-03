@@ -7,6 +7,8 @@ from django.db.models import Prefetch
 from .models import Message
 from .serializers import UnreadMessageSerializer
 from rest_framework.response import Response
+from django.views.decorators.cache import cache_page
+
 
 
 
@@ -51,4 +53,13 @@ class UnreadMessagesView(APIView):
     def get(self, request):
         unread_messages = Message.unread.for_user(request.user).only('id', 'sender', 'content', 'timestamp')
         serializer = MessageSerializer(unread_messages, many=True)
+        return Response(serializer.data)
+
+
+@method_decorator(cache_page(60), name='dispatch')
+class ConversationMessagesView(APIView):
+    def get(self, request, *args, **kwargs):
+        conversation_id = kwargs.get('conversation_id')
+        messages = Message.objects.filter(conversation_id=conversation_id)
+        serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data)
