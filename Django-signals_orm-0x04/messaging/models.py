@@ -2,12 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.conf import settings
 import uuid
-
-
-class UnreadMessagesManager(models.Manager):
-    def for_user(self, user):
-        return self.get_queryset().filter(receiver=user, read=False).only('id', 'sender', 'content', 'timestamp')
-
+from .managers import UnreadMessagesManager
 
 class Message(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -15,6 +10,9 @@ class Message(models.Model):
     receiver = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     read = models.BooleanField(default=False)
+    objects = models.Manager()  # Default manager
+    unread = UnreadMessagesManager()  # Custom manager
+
     timestamp = models.DateTimeField(auto_now_add=True)
 
     edited = models.BooleanField(default=False)
@@ -26,9 +24,7 @@ class Message(models.Model):
         on_delete=models.SET_NULL,
         related_name='edited_messages'
     )
-    objects = models.Manager()  # Default manager
-    unread = UnreadMessagesManager()  # Custom manager
-
+   
     parent_message = models.ForeignKey(
         'self',
         null=True,
