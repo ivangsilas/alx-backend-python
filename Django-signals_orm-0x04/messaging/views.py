@@ -42,6 +42,7 @@ def user_sent_messages_view(request):
 
 class UnreadMessagesAPIView(APIView):
     permission_classes = [IsAuthenticated]
+    
     def get(self, request):
             unread_messages = Message.unread.for_user(request.user)
             serializer = UnreadMessageSerializer(unread_messages, many=True)
