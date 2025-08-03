@@ -40,10 +40,15 @@ def user_sent_messages_view(request):
 
     return render(request, 'messaging/user_sent_messages.html', {'messages': messages})
 
-class UnreadMessagesAPIView(APIView):
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+
+
+class UnreadMessagesView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request):
-            unread_messages = Message.unread.for_user(request.user)
-            serializer = UnreadMessageSerializer(unread_messages, many=True)
-            return Response(serializer.data)  
+        unread_messages = Message.unread.for_user(request.user).only('id', 'sender', 'content', 'timestamp')
+        serializer = MessageSerializer(unread_messages, many=True)
+        return Response(serializer.data)
