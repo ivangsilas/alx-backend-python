@@ -1,7 +1,8 @@
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.db.models import Prefetch
+
 
 
 @login_required
@@ -17,5 +18,19 @@ def get_threaded_conversation(user):
         'sender', 'receiver'
     ).prefetch_related(
         Prefetch('replies', queryset=Message.objects.select_related('sender', 'receiver'))
+
     )
     return messages
+
+
+@login_required
+def user_sent_messages_view(request):
+    messages = Message.objects.filter(
+        sender=request.user
+    ).select_related(
+        'receiver'
+    ).prefetch_related(
+        'replies'
+    )
+
+    return render(request, 'messaging/user_sent_messages.html', {'messages': messages})
